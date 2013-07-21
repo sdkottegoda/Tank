@@ -1,0 +1,142 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Microsoft.Xna.Framework;
+
+namespace Shooter
+{
+    class Handler
+    {
+        public Tank[] tanks;
+        public List<Obstacle> obstacles;
+        public Client client;
+        public String serverReply;
+
+        public Handler()
+        {
+            client = new Client();
+            tanks = new Tank[5];
+            obstacles = new List<Obstacle>();
+        }
+
+        public Boolean join(Rectangle aScreen)
+        {
+            serverReply = this.sendAndARecieve("JOIN#");
+            Console.WriteLine(serverReply);
+
+            if (serverReply.ElementAt<char>(0)=='I')
+            {
+                createObstacles();
+                createTanks(aScreen);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public void createTanks(Rectangle gameScreen)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                tanks[i] = new Tank(i);
+
+            }
+            tanks[0].color = Color.Blue;
+            tanks[1].color = Color.Green;
+            tanks[2].color = Color.Red;
+            tanks[3].color = Color.Yellow;
+            tanks[4].color = Color.Magenta;
+
+            tanks[0].position = new Vector2(0 + gameScreen.Left, 0 + gameScreen.Top);
+            tanks[1].position = new Vector2(0 + gameScreen.Left, 570 + gameScreen.Top);
+            tanks[4].position = new Vector2(300 + gameScreen.Left, 300 + gameScreen.Top);
+            tanks[2].position = new Vector2(570 + gameScreen.Left, 0 + gameScreen.Top);
+            tanks[3].position = new Vector2(570 + gameScreen.Left, 570 + gameScreen.Top);
+
+        }
+
+        public String sendAndARecieve(String aMessage){
+
+            return this.client.send(aMessage);
+        }
+
+        public void createObstacles()
+        {
+            //obstacles = new Obstacle[195];
+
+            if (serverReply.ElementAt<char>(0) == 'I')
+            {
+                ///Console.WriteLine(serverReply.IndexOf('P'));
+                //Console.WriteLine(serverReply.Length);
+                String positions = serverReply.Substring(serverReply.IndexOf('P')+3,(serverReply.Length-serverReply.IndexOf('P')-3));
+                ///Console.WriteLine(positions);
+                ///String[] brickPositions = new String[3];
+                String [] brickPositions = positions.Split(':');
+                String type = "brickWall";
+                for (int i = 0; i < 3 ; i++ )
+                {
+                    int j = 0;
+                    while (j < brickPositions[i].Length)
+                    {
+                        obstacles.Add(new Obstacle(type, new Vector2(brickPositions[i].ElementAt(j)-48, brickPositions[i].ElementAt(j + 2)-48)));
+                        Console.WriteLine(obstacles.Last().type + obstacles.Last().position.X + obstacles.Last().position.Y);
+                        j = j + 4;
+                    }
+                    if (i == 0)
+                    {
+                        type = "stoneWall";
+                    }
+                    else if (i == 1)
+                    {
+                        type = "water";
+                    }
+                    else
+                    {
+                        
+                    }
+                    
+                }
+                //CharEnumerator i = positions.GetEnumerator();
+                //int j = 0;
+                //String[] types = new String[] { "brickWall", "stoneWall", "water"};
+                //while (i!= null)
+                //{
+                //    if (i.Current == ',')
+                //    {
+                //        j = 1;
+                //        i.MoveNext();
+                //    }
+                //    else if (i.Current == ';')
+                //    {
+                //        j = 0;
+                //        i.MoveNext();
+                //    }
+                //    else if (i.Current == ':')
+                //    {
+                //    }
+                //}
+            }
+            else
+            {
+            }
+
+
+            /*for (int i = 0; i < 10; i++)
+            {
+                obstacles[i] = new Obstacle("brickWall", new Vector2(0 + gameScreen.Left, (i * 30) + gameScreen.Top));
+            }
+            for (int i = 10; i < 20; i++)
+            {
+                obstacles[i] = new Obstacle("stoneWall", new Vector2(30 + gameScreen.Left, ((i - 10) * 30) + gameScreen.Top));
+            }
+            for (int i = 20; i < 30; i++)
+            {
+                obstacles[i] = new Obstacle("water", new Vector2(60 + gameScreen.Left, ((i - 20) * 30) + gameScreen.Top));
+            }*/
+        }
+
+
+    }
+}
